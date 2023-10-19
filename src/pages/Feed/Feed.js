@@ -44,6 +44,8 @@ class Feed extends Component {
     socket.on('posts', (data) => {
       if (data.action === 'create') {
         this.addPost(data.post);
+      } else if (data.action === 'update') {
+        this.updatePost(data.post);
       }
     });
   }
@@ -60,6 +62,21 @@ class Feed extends Component {
       return {
         posts: updatedPosts,
         totalPosts: prevState.totalPosts + 1,
+      };
+    });
+  };
+
+  updatePost = (post) => {
+    this.setState((prevState) => {
+      const updatedPosts = [...prevState.posts];
+      const updatedPostIndex = updatedPosts.findIndex(
+        (p) => p._id === post._id
+      );
+      if (updatedPostIndex > -1) {
+        updatedPosts[updatedPostIndex] = post;
+      }
+      return {
+        posts: updatedPosts,
       };
     });
   };
@@ -105,13 +122,16 @@ class Feed extends Component {
 
   statusUpdateHandler = (event) => {
     event.preventDefault();
-    fetch('URL')
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Can't update status!");
-        }
-        return res.json();
-      })
+    fetch('http://localhost:9090/auth/status', {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer ' + this.props.token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: this.state.status,
+      }),
+    })
       .then((resData) => {
         console.log(resData);
       })
