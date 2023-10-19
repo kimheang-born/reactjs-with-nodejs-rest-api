@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import openSocket from 'socket.io-client';
 
 import Post from '../../components/Feed/Post/Post';
 import Button from '../../components/Button/Button';
@@ -35,7 +36,24 @@ class Feed extends Component {
       .catch(this.catchError);
 
     this.loadPosts();
+    openSocket('http://localhost:9090');
   }
+
+  addPost = (post) => {
+    this.setState((prevState) => {
+      const updatedPosts = [...prevState.posts];
+      if (prevState.postPage === 1) {
+        if (prevState.posts.length >= 2) {
+          updatedPosts.pop();
+        }
+        updatedPosts.unshift(post);
+      }
+      return {
+        posts: updatedPosts,
+        totalPosts: prevState.totalPosts + 1,
+      };
+    });
+  };
 
   loadPosts = (direction) => {
     if (direction) {
@@ -50,7 +68,7 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    fetch('http://localhost:5000/feed/posts?page=' + page, {
+    fetch('http://localhost:9090/feed/posts?page=' + page, {
       headers: {
         Authorization: `Bearer ${this.props.token}`,
       },
@@ -118,10 +136,10 @@ class Feed extends Component {
     formData.append('title', postData.title);
     formData.append('content', postData.content);
     formData.append('image', postData.image);
-    let url = 'http://localhost:5000/feed/post';
+    let url = 'http://localhost:9090/feed/post';
     let method = 'POST';
     if (this.state.editPost) {
-      url = `http://localhost:5000/feed/post/${this.state.editPost._id}`;
+      url = `http://localhost:9090/feed/post/${this.state.editPost._id}`;
       method = 'PUT';
     }
 
@@ -182,7 +200,7 @@ class Feed extends Component {
 
   deletePostHandler = (postId) => {
     this.setState({ postsLoading: true });
-    fetch(`http://localhost:5000/feed/post/${postId}`, {
+    fetch(`http://localhost:9090/feed/post/${postId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${this.props.token}`,

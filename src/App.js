@@ -59,7 +59,7 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('http://localhost:5000/auth/login', {
+    fetch('http://localhost:9090/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('http://localhost:5000/auth/signup', {
+    fetch('http://localhost:9090/auth/signup', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
